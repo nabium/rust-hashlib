@@ -18,11 +18,13 @@
 //!     [`sha2::sha512_224()`]
 //!   * SHA-512/256
 //!     [`sha2::sha512_256()`]
-//! 
+//!
 //! [`self::stringify()`] converts byte array into hex string.
 
 use std::io::Read;
 
+pub mod md2;
+pub mod md4;
 pub mod md5;
 pub mod sha1;
 pub mod sha2;
@@ -48,7 +50,7 @@ const HEX: [&str; 256] = [
 ];
 
 /// Returns the hex string representation of bytes.
-/// 
+///
 /// Bytes are concatinated without delimiters or new lines.
 pub fn stringify(data: &[u8]) -> String {
     let mut result = String::with_capacity(data.len() * 2);
@@ -67,7 +69,7 @@ enum Endian {
 }
 
 /// Iterator of message split in 512-bit chunks with padding and file size appended.
-/// 
+///
 /// Used by MD5(little-endian) and SHA-1(BIG-endian), SHA-2(BIG-endian).
 struct MessageBuffer64<R: Read> {
     /// original message
@@ -86,7 +88,7 @@ struct MessageBuffer64<R: Read> {
 
 impl<R: Read> MessageBuffer64<R> {
     /// Constructor of struct MessageBuffer64.
-    /// 
+    ///
     /// Example of types implementing `std::io::Read`:
     /// * std::fs::File::open("filename")
     /// * std::io::stdin()
@@ -104,23 +106,23 @@ impl<R: Read> MessageBuffer64<R> {
     }
 
     /// Returns true if there is a chunk to read.
-    /// 
+    ///
     /// Do not call `self.next()` if this function returns `false`.
     fn has_next(&self) -> bool {
         !self.eof
     }
 
     /// Returns next chunk.
-    /// 
+    ///
     /// Reads 512 bits(64 bytes) block from the file.
     /// If EOF is reached, add padding and the size of the file to fill the block.
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// If called when `self.has_next()` returns `false`.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// let mut buf = MessageBuffer64::new("abc".as_bytes(), Endian::Big)
     /// while buf.has_next() {
@@ -189,7 +191,7 @@ impl<R: Read> MessageBuffer64<R> {
 }
 
 /// Iterator of message split in 1024-bit chunks with padding and file size appended.
-/// 
+///
 /// Used by SHA-2(BIG-endian).
 struct MessageBuffer128<R: Read> {
     /// original message
@@ -206,7 +208,7 @@ struct MessageBuffer128<R: Read> {
 
 impl<R: Read> MessageBuffer128<R> {
     /// Constructor of struct MessageBuffer128.
-    /// 
+    ///
     /// Example of types implementing `std::io::Read`:
     /// * std::fs::File::open("filename")
     /// * std::io::stdin()
@@ -223,23 +225,23 @@ impl<R: Read> MessageBuffer128<R> {
     }
 
     /// Returns true if there is a chunk to read.
-    /// 
+    ///
     /// Do not call `self.next()` if this function returns `false`.
     fn has_next(&self) -> bool {
         !self.eof
     }
 
     /// Returns next chunk.
-    /// 
+    ///
     /// Reads 1024 bits(128 bytes) block from the file.
     /// If EOF is reached, add padding and the size of the file to fill the block.
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// If called when `self.has_next()` returns `false`.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// let mut buf = MessageBuffer128::new("abc".as_bytes())
     /// while buf.has_next() {

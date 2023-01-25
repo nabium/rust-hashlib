@@ -16,14 +16,18 @@ modules
 ------------------------------------------------------------
 
 * hashlib
-  * md5 - MD5 hash function
-  * sha1 - SHA-1 hash function
-  * sha2 - SHA-2 hash functions
+  * md2 - MD2 Message-Digest Algorithm
+  * md4 - MD4 Message-Digest Algorithm
+  * md5 - MD5 Message-Digest Algorithm
+  * sha1 - SHA-1
+  * sha2 - SHA-2
 
 
 binaries
 ------------------------------------------------------------
 
+* md2sum
+* md4sum
 * md5sum
 * sha1sum
 * sha224sum
@@ -38,10 +42,13 @@ TODO
 ------------------------------------------------------------
 
 * SHA-3
+  - https://csrc.nist.gov/publications/fips#202
+  - https://keccak.team/
   - https://en.wikipedia.org/wiki/SHA-3
   - https://www.nist.gov/publications/sha-3-standard-permutation-based-hash-and-extendable-output-functions
-  - https://keccak.team/
-* MD4
-* MD2
+* BLAKE2b
+  - https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE2
+* BLAKE3
+  - https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE3
 * フィルタコマンド用ユーティリティ
 * コマンドライン解析

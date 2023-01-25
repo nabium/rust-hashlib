@@ -1,10 +1,10 @@
-//! Hash functions using SHA-1 (Secure Hash Algorithm 1).
-//! 
+//! Hash functions using SHA-2 (Secure Hash Algorithm 2).
+//!
 //! # Example
-//! 
+//!
 //! ```
 //! use hashlib::sha2;
-//! 
+//!
 //! let hash = sha2::sha224("abc".as_bytes());
 //! let hash = sha2::sha256("abc".as_bytes());
 //! let hash = sha2::sha384("abc".as_bytes());
@@ -12,7 +12,7 @@
 //! let hash = sha2::sha512_224("abc".as_bytes());
 //! let hash = sha2::sha512_256("abc".as_bytes());
 //! ```
-//! 
+//!
 //! # See
 //! * <https://csrc.nist.gov/publications/fips#180-4>
 //! * <https://datatracker.ietf.org/doc/html/rfc6234>
@@ -269,16 +269,16 @@ fn compute64<R: Read>(input: R, init: [u64; 8]) -> Vec<u8> {
 }
 
 /// Returns 28 byte hash value produced from `input` using SHA-224(SHA-2).
-/// 
+///
 /// Length of returned Vec<u8> is 28.
-/// 
+///
 /// Parameter `input` must implement [`Read`].
 /// Some examples are:
 /// * std::fs::File::open("filename")
 /// * std::io::stdin()
 /// * "string data".as_bytes()
 /// * slice of byte array `&[u8]` as in `&[0x00u8; 16][..4]`
-/// 
+///
 /// This implementaion uses pseudo code from <https://en.wikipedia.org/wiki/SHA-2>.
 pub fn sha224<R: Read>(input: R) -> Vec<u8> {
     let mut hash = compute32(input, INIT224);
@@ -287,32 +287,32 @@ pub fn sha224<R: Read>(input: R) -> Vec<u8> {
 }
 
 /// Returns 32 byte hash value produced from `input` using SHA-256(SHA-2).
-/// 
+///
 /// Length of returned Vec<u8> is 32.
-/// 
+///
 /// Parameter `input` must implement [`Read`].
 /// Some examples are:
 /// * std::fs::File::open("filename")
 /// * std::io::stdin()
 /// * "string data".as_bytes()
 /// * slice of byte array `&[u8]` as in `&[0x00u8; 16][..4]`
-/// 
+///
 /// This implementaion uses pseudo code from <https://en.wikipedia.org/wiki/SHA-2>.
 pub fn sha256<R: Read>(input: R) -> Vec<u8> {
     compute32(input, INIT256)
 }
 
 /// Returns 48 byte hash value produced from `input` using SHA-384(SHA-2).
-/// 
+///
 /// Length of returned Vec<u8> is 48.
-/// 
+///
 /// Parameter `input` must implement [`Read`].
 /// Some examples are:
 /// * std::fs::File::open("filename")
 /// * std::io::stdin()
 /// * "string data".as_bytes()
 /// * slice of byte array `&[u8]` as in `&[0x00u8; 16][..4]`
-/// 
+///
 /// This implementaion uses pseudo code from <https://en.wikipedia.org/wiki/SHA-2>.
 pub fn sha384<R: Read>(input: R) -> Vec<u8> {
     let mut hash = compute64(input, INIT384);
@@ -321,32 +321,32 @@ pub fn sha384<R: Read>(input: R) -> Vec<u8> {
 }
 
 /// Returns 64 byte hash value produced from `input` using SHA-512(SHA-2).
-/// 
+///
 /// Length of returned Vec<u8> is 64.
-/// 
+///
 /// Parameter `input` must implement [`Read`].
 /// Some examples are:
 /// * std::fs::File::open("filename")
 /// * std::io::stdin()
 /// * "string data".as_bytes()
 /// * slice of byte array `&[u8]` as in `&[0x00u8; 16][..4]`
-/// 
+///
 /// This implementaion uses pseudo code from <https://en.wikipedia.org/wiki/SHA-2>.
 pub fn sha512<R: Read>(input: R) -> Vec<u8> {
     compute64(input, INIT512)
 }
 
 /// Returns 28 byte hash value produced from `input` using SHA-512/224(SHA-2).
-/// 
+///
 /// Length of returned Vec<u8> is 28.
-/// 
+///
 /// Parameter `input` must implement [`Read`].
 /// Some examples are:
 /// * std::fs::File::open("filename")
 /// * std::io::stdin()
 /// * "string data".as_bytes()
 /// * slice of byte array `&[u8]` as in `&[0x00u8; 16][..4]`
-/// 
+///
 /// This implementaion uses pseudo code from <https://en.wikipedia.org/wiki/SHA-2>.
 pub fn sha512_224<R: Read>(input: R) -> Vec<u8> {
     let hash = compute64("SHA-512/224".as_bytes(), INIT512MOD);
@@ -369,16 +369,16 @@ pub fn sha512_224<R: Read>(input: R) -> Vec<u8> {
 }
 
 /// Returns 32 byte hash value produced from `input` using SHA-512/256(SHA-2).
-/// 
+///
 /// Length of returned Vec<u8> is 32.
-/// 
+///
 /// Parameter `input` must implement [`Read`].
 /// Some examples are:
 /// * std::fs::File::open("filename")
 /// * std::io::stdin()
 /// * "string data".as_bytes()
 /// * slice of byte array `&[u8]` as in `&[0x00u8; 16][..4]`
-/// 
+///
 /// This implementaion uses pseudo code from <https://en.wikipedia.org/wiki/SHA-2>.
 pub fn sha512_256<R: Read>(input: R) -> Vec<u8> {
     let hash = compute64("SHA-512/256".as_bytes(), INIT512MOD);

@@ -1,13 +1,13 @@
 //! Hash function using SHA-1 (Secure Hash Algorithm 1).
-//! 
+//!
 //! # Example
-//! 
+//!
 //! ```
 //! use hashlib::sha1;
-//! 
+//!
 //! let hash = sha1::compute("abc".as_bytes());
 //! ```
-//! 
+//!
 //! # See
 //! * <https://csrc.nist.gov/publications/fips#180-4>
 //! * <https://datatracker.ietf.org/doc/html/rfc3174>
@@ -20,16 +20,16 @@ use std::io::Read;
 use super::{MessageBuffer64, Endian};
 
 /// Returns 20 byte hash value produced from `input` using SHA-1.
-/// 
+///
 /// Length of returned Vec<u8> is 20.
-/// 
+///
 /// Parameter `input` must implement [`Read`].
 /// Some examples are:
 /// * std::fs::File::open("filename")
 /// * std::io::stdin()
 /// * "string data".as_bytes()
 /// * slice of byte array `&[u8]` as in `&[0x00u8; 16][..4]`
-/// 
+///
 /// This implementaion uses pseudo code from <https://en.wikipedia.org/wiki/SHA-1>.
 pub fn compute<R: Read>(input: R) -> Vec<u8> {
 

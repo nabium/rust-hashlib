@@ -1,15 +1,15 @@
 //! Hash function using MD5 Message-Digest Algorithm.
-//! 
+//!
 //! # Example
-//! 
+//!
 //! ```
 //! use hashlib::md5;
-//! 
+//!
 //! let hash = md5::compute("abc".as_bytes());
 //! ```
-//! 
+//!
 //! # See
-//! 
+//!
 //! * <https://datatracker.ietf.org/doc/html/rfc1321>
 //! * <https://en.wikipedia.org/wiki/MD5>
 
@@ -37,16 +37,16 @@ const S_TABLE: [u32; 64] = [
 ];
 
 /// Returns 16 byte hash value produced from `input` using MD5.
-/// 
+///
 /// Length of returned Vec<u8> is 16.
-/// 
+///
 /// Parameter `input` must implement [`Read`].
 /// Some examples are:
 /// * std::fs::File::open("filename")
 /// * std::io::stdin()
 /// * "string data".as_bytes()
 /// * slice of byte array `&[u8]` as in `&[0x00u8; 16][..4]`
-/// 
+///
 /// This implementaion uses pseudo code from <https://en.wikipedia.org/wiki/MD5>.
 pub fn compute<R: Read>(input: R) -> Vec<u8> {
 
