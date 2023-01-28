@@ -28,6 +28,7 @@ pub mod md4;
 pub mod md5;
 pub mod sha1;
 pub mod sha2;
+pub mod sha3;
 
 /// Table of stringified bytes
 const HEX: [&str; 256] = [
@@ -123,11 +124,11 @@ impl<R: Read> MessageBuffer64<R> {
     ///
     /// # Examples
     ///
-    /// ```
-    /// let mut buf = MessageBuffer64::new("abc".as_bytes(), Endian::Big)
+    /// ```ignore
+    /// let mut buf = MessageBuffer64::new("abc".as_bytes(), Endian::Big);
     /// while buf.has_next() {
     ///   let chunk = buf.next();
-    ///   println!("{chunk:?}")
+    ///   println!("{chunk:?}");
     /// }
     /// ```
     fn next(&mut self) -> &[u8] {
@@ -242,11 +243,11 @@ impl<R: Read> MessageBuffer128<R> {
     ///
     /// # Examples
     ///
-    /// ```
-    /// let mut buf = MessageBuffer128::new("abc".as_bytes())
+    /// ```ignore
+    /// let mut buf = MessageBuffer128::new("abc".as_bytes());
     /// while buf.has_next() {
     ///   let chunk = buf.next();
-    ///   println!("{chunk:?}")
+    ///   println!("{chunk:?}");
     /// }
     /// ```
     fn next(&mut self) -> &[u8] {

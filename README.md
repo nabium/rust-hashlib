@@ -21,6 +21,7 @@ modules
   * md5 - MD5 Message-Digest Algorithm
   * sha1 - SHA-1
   * sha2 - SHA-2
+  * sha3 - SHA-3 and SHAKE
 
 
 binaries
@@ -36,19 +37,19 @@ binaries
 * sha512sum
 * sha512_224sum
 * sha512_256sum
+* sha3_224sum
+* sha3_256sum
+* sha3_384sum
+* sha3_512sum
 
 
 TODO
 ------------------------------------------------------------
 
-* SHA-3
-  - https://csrc.nist.gov/publications/fips#202
-  - https://keccak.team/
-  - https://en.wikipedia.org/wiki/SHA-3
-  - https://www.nist.gov/publications/sha-3-standard-permutation-based-hash-and-extendable-output-functions
 * BLAKE2b
   - https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE2
 * BLAKE3
   - https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE3
 * フィルタコマンド用ユーティリティ
 * コマンドライン解析
+* SHAKEのコマンドライン

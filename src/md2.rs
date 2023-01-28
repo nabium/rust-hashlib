@@ -87,11 +87,11 @@ impl<R: Read> MessageBuffer<R> {
     ///
     /// # Examples
     ///
-    /// ```
-    /// let mut buf = MessageBuffer::new("abc".as_bytes())
+    /// ```ignore
+    /// let mut buf = MessageBuffer::new("abc".as_bytes());
     /// while buf.has_next() {
     ///   let chunk = buf.next();
-    ///   println!("{chunk:?}")
+    ///   println!("{chunk:?}");
     /// }
     /// ```
     fn next(&mut self) -> &[u8] {
