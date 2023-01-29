@@ -50,6 +50,6 @@ TODO
   - https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE2
 * BLAKE3
   - https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE3
-* フィルタコマンド用ユーティリティ
-* コマンドライン解析
 * SHAKEのコマンドライン
+* コマンドライン解析
+  - https://crates.io/crates/clap

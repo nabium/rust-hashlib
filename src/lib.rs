@@ -21,7 +21,8 @@
 //!
 //! [`self::stringify()`] converts byte array into hex string.
 
-use std::io::Read;
+use std::io::{self, Read};
+use std::fs::File;
 
 pub mod md2;
 pub mod md4;
@@ -29,6 +30,51 @@ pub mod md5;
 pub mod sha1;
 pub mod sha2;
 pub mod sha3;
+
+const STDIN: &str = "-";
+
+fn is_stdin(filename: &str) -> bool {
+    filename == STDIN
+}
+
+fn openfile(filename: &str) -> Box<dyn Read> {
+    if is_stdin(filename) {
+        Box::new(io::stdin())
+    } else {
+        Box::new(File::open(filename).unwrap_or_else(|err| {
+            panic!("Failed to open <{}>: {:?}", filename, err);
+        }))
+    }
+}
+
+/// Apply f() to each file in files.
+///
+/// # Arguments
+/// 
+/// 
+/// 
+/// # Panics
+///
+/// Panics if file cannot be opened.
+pub fn foreach_file(files: &Vec<String>, f: fn(&str, Box<dyn Read>)) {
+    if files.is_empty() {
+        f(STDIN, openfile(STDIN));
+    } else {
+        for filename in files {
+            f(filename, openfile(filename))
+        }
+    }
+}
+
+/// Returns a symbol, " " or "*", to prepend the filename,
+/// as GNU coreutils does.
+pub fn symbol_of(filename: &str) -> &str {
+    if is_stdin(filename) {
+        " "
+    } else {
+        "*"
+    }
+}
 
 /// Table of stringified bytes
 const HEX: [&str; 256] = [
