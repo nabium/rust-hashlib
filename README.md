@@ -41,6 +41,8 @@ binaries
 * sha3_256sum
 * sha3_384sum
 * sha3_512sum
+* shake128sum
+* shake256sum
 
 
 TODO
@@ -50,6 +52,3 @@ TODO
   - https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE2
 * BLAKE3
   - https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE3
-* SHAKEのコマンドライン
-* コマンドライン解析
-  - https://crates.io/crates/clap

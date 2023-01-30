@@ -18,8 +18,25 @@
 //!     [`sha2::sha512_224()`]
 //!   * SHA-512/256
 //!     [`sha2::sha512_256()`]
+//!  * SHA-3
+//!   * SHA3-224
+//!     [`sha3::sha224()`]
+//!   * SHA3-256
+//!     [`sha3::sha256()`]
+//!   * SHA3-384
+//!     [`sha3::sha384()`]
+//!   * SHA3-512
+//!     [`sha3::sha512()`]
+//!   * SHAAKE128
+//!     [`sha3::shake128()`]
+//!   * SHAAKE256
+//!     [`sha3::shake256()`]
 //!
-//! [`self::stringify()`] converts byte array into hex string.
+//! Utilities:
+//! * [`stringify()`] converts byte array into hex string.
+//! * [`foreach_file()`] opens all the files and calls closure.
+//! * [`symbol_of()`] returns symbol prpended to the filename on printing.
+//! * [`hash_width_parser()`] argument parser for width of the hash.
 
 use std::io::{self, Read};
 use std::fs::File;
@@ -50,13 +67,16 @@ fn openfile(filename: &str) -> Box<dyn Read> {
 /// Apply f() to each file in files.
 ///
 /// # Arguments
-/// 
-/// 
-/// 
+///
+///
+///
 /// # Panics
 ///
 /// Panics if file cannot be opened.
-pub fn foreach_file(files: &Vec<String>, f: fn(&str, Box<dyn Read>)) {
+pub fn foreach_file<F>(files: &Vec<String>, f: F)
+where
+    F: Fn(&str, Box<dyn Read>)
+{
     if files.is_empty() {
         f(STDIN, openfile(STDIN));
     } else {
@@ -73,6 +93,22 @@ pub fn symbol_of(filename: &str) -> &str {
         " "
     } else {
         "*"
+    }
+}
+
+/// Custom parser for hash size.
+///
+/// see <https://docs.rs/clap/latest/clap/_derive/_tutorial/index.html#validated-values>
+pub fn hash_width_parser(s: &str) -> Result<usize, String> {
+    match s.parse::<usize>() {
+        Ok(width) => {
+            if width % 8 == 0 {
+                Ok(width)
+            } else {
+                Err(format!("width must be divisible by 8 but was {width}"))
+            }
+        },
+        Err(e) => Err(e.to_string())
     }
 }
 

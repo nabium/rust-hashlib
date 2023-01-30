@@ -1,10 +1,32 @@
-use std::env;
+use std::process::ExitCode;
+use clap::Parser;
 
-fn main() {
-    let files: Vec<String> = env::args().skip(1).collect();
+/// Print SHA3-224 hash value of files.
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Sha3Args {
 
-    hashlib::foreach_file(&files, |filename, file| {
+    /// Files to print the hash value, use "-" for STDIN
+    file: Vec<String>,
+
+    /// Print intermediate states
+    #[arg(short, long)]
+    verbose: bool,
+}
+
+fn main() -> ExitCode {
+    let args = Sha3Args::parse();
+
+    if args.verbose {
+        unsafe {
+            hashlib::sha3::TRACE_INTERMEDIATE = true;
+        }
+    }
+
+    hashlib::foreach_file(&args.file, |filename, file| {
         let checksum = hashlib::sha3::sha384(file);
         println!("{} {}{filename}", hashlib::stringify(&checksum), hashlib::symbol_of(filename));
     });
+
+    ExitCode::SUCCESS
 }
