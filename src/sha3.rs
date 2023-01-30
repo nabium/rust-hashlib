@@ -134,7 +134,24 @@ impl<R: Read> Message<R> {
             self.eof = true;
         }
 
-        // block contains (5 * 5)=SLICE of (u64)=LANE
+        // block contains (5 rows * 5 columns)=SLICE of (u64)=LANE
+        // indexing is [y * 5 + x]
+        //
+        // As described in "B.1 Conversion Functions"
+        // SHA-3 bit strings are converted to bytes in LSB-first order.
+        // Let bn be the bytes and zn be the bits in bit string S,
+        // S = z00 | z01 | z02 | z03 | z04 | z05 | z06 | z07
+        //   | z08 | z09 | z10 | z11 | z12 | z13 | z14 | z15 ...
+        // S = b00 | b01 ...
+        //
+        // Above S would be stored in hexadecimal string(i.e. input and output bytes) as below.
+        //     b00
+        //     z07 | z06 | z05 | z04 | z03 | z02 | z01 | z00
+        //   | b01
+        //   | z15 | z14 | z13 | z12 | z11 | z10 | z09 | z08
+        // And in little endian u64 lane,
+        // LANE = b07 | b06 | b05 | b04 | b03 | b02 | b01 | b00
+        //      = z63 | ... | z08 | z06 | z05 | z04 | z03 | z02 | z01 | z00
         [
             // y=0
             u64::from_le_bytes(buf[0..8].try_into().unwrap()),
@@ -246,12 +263,18 @@ fn chi(state: &mut [u64; SLICE_SIZE]) {
 
 /// precomputed round constants for u64 lane
 const RC: [u64; NUM_ROUNDS] = [
-    0x1, 0x8082, 0x800000000000808a, 0x8000000080008000,
-    0x808b, 0x80000001, 0x8000000080008081, 0x8000000000008009,
-    0x8a, 0x88, 0x80008009, 0x8000000a,
-    0x8000808b, 0x800000000000008b, 0x8000000000008089, 0x8000000000008003,
-    0x8000000000008002, 0x8000000000000080, 0x800a, 0x800000008000000a,
-    0x8000000080008081, 0x8000000000008080, 0x80000001, 0x8000000080008008,
+    0x0000000000000001, 0x0000000000008082,
+    0x800000000000808a, 0x8000000080008000,
+    0x000000000000808b, 0x0000000080000001,
+    0x8000000080008081, 0x8000000000008009,
+    0x000000000000008a, 0x0000000000000088,
+    0x0000000080008009, 0x000000008000000a,
+    0x000000008000808b, 0x800000000000008b,
+    0x8000000000008089, 0x8000000000008003,
+    0x8000000000008002, 0x8000000000000080,
+    0x000000000000800a, 0x800000008000000a,
+    0x8000000080008081, 0x8000000000008080,
+    0x0000000080000001, 0x8000000080008008,
 ];
 
 // 3.2.5 Specification of &iota; Algorithm 6
@@ -265,10 +288,15 @@ fn iota(state: &mut [u64; SLICE_SIZE], ir: usize) {
     // for ir in 0..NUM_ROUNDS {
     //     let mut rc: u64 = 0;
     //     for j in 0..=l {
+    //         // bitpos = [
+    //         //   2^0-1 = 0, 2^1-1 = 1, 2^2-1 = 3, 2^3-1 = 7
+    //         //   2^4-1 = 15, 2^5-1 = 31, 2^6 = 63
+    //         // ]
     //         let bitpos = 2u32.pow(j) - 1;
     //         let t = (j as usize + 7 * ir) % 255;
-    //         // 3.2.5 Specification of &iota;
-    //         // Algorithm 5
+
+    //         // 3.2.5 Specification of &iota; Algorithm 5
+    //         // rc(t)
     //         let bitval: u64;
     //         if t == 0 {
     //             bitval = 1;
@@ -283,7 +311,9 @@ fn iota(state: &mut [u64; SLICE_SIZE], ir: usize) {
     //             }
     //             bitval = ((r >> 7) & 0x01) as u64;
     //         }
-    //         // should be bitval << (63 - bitpos) and/or rc.reverse_bits()?
+    //         // With LSB-first bits and little endian u64 as lane.
+    //         // Byte7 Byte6 Byte5 Byte4 Byte3 Byte2 Byte1                         Byte0
+    //         // b63 ...                             b15 b14 b13 b12 b11 b10 b9 b8 b7 b6 b5 b4 b3 b2 b1 b0
     //         rc |= bitval << bitpos;
     //     }
     //     iota[ir] = rc;
