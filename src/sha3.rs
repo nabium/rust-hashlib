@@ -208,20 +208,21 @@ fn theta(state: &mut [u64; SLICE_SIZE]) {
 /// precomputed bits to shift for u64 lane in RHO
 const RHO: [u32; SLICE_SIZE] = [0, 1, 62, 28, 27, 36, 44, 6, 55, 20, 3, 10, 43, 25, 39, 41, 45, 15, 21, 8, 18, 2, 61, 56, 14];
 
+pub fn generate_rho() -> [u32; 25] {
+    let mut rho = [0; SLICE_SIZE];
+    let mut x = 1;
+    let mut y = 0;
+    for t in 0..24 {
+        rho[y * ROW_SIZE + x] = ((t + 1) * (t + 2) / 2) % u64::BITS;
+        let tmp = y;
+        y = (2 * x + 3 * y) % 5;
+        x = tmp;
+    }
+    rho
+}
+
 // 3.2.2 Specification of &rho; Algorithm 2
 fn rho(state: &mut [u64; SLICE_SIZE]) {
-
-    // To create RHO array:
-    // let mut rho = [0; SLICE_SIZE];
-    // let mut x = 1;
-    // let mut y = 0;
-    // for t in 0..24 {
-    //     rho[y * ROW_SIZE + x] = ((t + 1) * (t + 2) / 2) % u64::BITS;
-    //     let tmp = y;
-    //     y = (2 * x + 3 * y) % 5;
-    //     x = tmp;
-    // }
-
     for index in 0..SLICE_SIZE {
         state[index] = state[index].rotate_left(RHO[index]);
     }
@@ -230,17 +231,18 @@ fn rho(state: &mut [u64; SLICE_SIZE]) {
 /// precomputed indices for PI
 const PI: [usize; SLICE_SIZE] = [0, 6, 12, 18, 24, 3, 9, 10, 16, 22, 1, 7, 13, 19, 20, 4, 5, 11, 17, 23, 2, 8, 14, 15, 21];
 
+pub fn generate_pi() -> [usize; SLICE_SIZE] {
+    let mut pi = [0; SLICE_SIZE];
+    for x in 0..5 {
+        for y in 0..5 {
+            pi[y * ROW_SIZE + x] = x * ROW_SIZE + (x + 3 * y) % 5;
+        }
+    }
+    pi
+}
+
 // 3.2.3 Specification of &pi; Algorithm 3
 fn pi(state: &mut [u64; SLICE_SIZE]) {
-
-    // To create PI array:
-    // let mut pi = [0; SLICE_SIZE];
-    // for x in 0..5 {
-    //     for y in 0..5 {
-    //         pi[y * ROW_SIZE + x] = x * ROW_SIZE + (x + 3 * y) % 5;
-    //     }
-    // }
-
     let old_state = state.clone();
     for index in 0..SLICE_SIZE {
         state[index] = old_state[PI[index]];
@@ -277,48 +279,51 @@ const RC: [u64; NUM_ROUNDS] = [
     0x0000000080000001, 0x8000000080008008,
 ];
 
+pub fn generate_rc() -> [u64; NUM_ROUNDS] {
+    // w = lane size in bits
+    // l = log2(w) = 6
+    let l = 6;
+    let mut iota = [0; NUM_ROUNDS];
+    for ir in 0..NUM_ROUNDS {
+        let mut rc: u64 = 0;
+        for j in 0..=l {
+            // bitpos = [
+            //   2^0-1 = 0, 2^1-1 = 1, 2^2-1 = 3, 2^3-1 = 7
+            //   2^4-1 = 15, 2^5-1 = 31, 2^6 = 63
+            // ]
+            let bitpos = 2u32.pow(j) - 1;
+            let t = (j as usize + 7 * ir) % 255;
+
+            // 3.2.5 Specification of &iota; Algorithm 5
+            // rc(t)
+            let bitval: u64;
+            if t == 0 {
+                bitval = 1;
+            } else {
+                let mut r: u8 = 0b10000000;
+                for _ in 1..=t {
+                    let lsb = r & 0x01;
+                    r >>= 1;
+                    if lsb != 0 {
+                        r ^= 0b10001110;
+                    }
+                }
+                bitval = ((r >> 7) & 0x01) as u64;
+            }
+            // With LSB-first bits and little endian u64 as lane.
+            // Byte7 Byte6 Byte5 Byte4 Byte3 Byte2 Byte1                         Byte0
+            // b63 ...                             b15 b14 b13 b12 b11 b10 b9 b8 b7 b6 b5 b4 b3 b2 b1 b0
+            rc |= bitval << bitpos;
+        }
+        iota[ir] = rc;
+    }
+    iota
+}
+
 // 3.2.5 Specification of &iota; Algorithm 6
 /// state: state array (A)
 /// ir: round index (ir)
 fn iota(state: &mut [u64; SLICE_SIZE], ir: usize) {
-    // // w = lane size in bits
-    // // l = log2(w) = 6
-    // let l = 6;
-    // let mut iota = [0; NUM_ROUNDS];
-    // for ir in 0..NUM_ROUNDS {
-    //     let mut rc: u64 = 0;
-    //     for j in 0..=l {
-    //         // bitpos = [
-    //         //   2^0-1 = 0, 2^1-1 = 1, 2^2-1 = 3, 2^3-1 = 7
-    //         //   2^4-1 = 15, 2^5-1 = 31, 2^6 = 63
-    //         // ]
-    //         let bitpos = 2u32.pow(j) - 1;
-    //         let t = (j as usize + 7 * ir) % 255;
-
-    //         // 3.2.5 Specification of &iota; Algorithm 5
-    //         // rc(t)
-    //         let bitval: u64;
-    //         if t == 0 {
-    //             bitval = 1;
-    //         } else {
-    //             let mut r: u8 = 0b10000000;
-    //             for _ in 1..=t {
-    //                 let lsb = r & 0x01;
-    //                 r >>= 1;
-    //                 if lsb != 0 {
-    //                     r ^= 0b10001110;
-    //                 }
-    //             }
-    //             bitval = ((r >> 7) & 0x01) as u64;
-    //         }
-    //         // With LSB-first bits and little endian u64 as lane.
-    //         // Byte7 Byte6 Byte5 Byte4 Byte3 Byte2 Byte1                         Byte0
-    //         // b63 ...                             b15 b14 b13 b12 b11 b10 b9 b8 b7 b6 b5 b4 b3 b2 b1 b0
-    //         rc |= bitval << bitpos;
-    //     }
-    //     iota[ir] = rc;
-    // }
-
     state[0] ^= RC[ir];
 }
 
@@ -526,6 +531,13 @@ fn debug_print_block_bytes(block: &[u64], msg: &str) {
 mod tests {
     use super::*;
     use super::super::stringify;
+
+    #[test]
+    fn test_constant_generators() {
+        assert_eq!(generate_rho(), RHO);
+        assert_eq!(generate_pi(), PI);
+        assert_eq!(generate_rc(), RC);
+    }
 
     #[test]
     fn test_message_sha3_224() {
