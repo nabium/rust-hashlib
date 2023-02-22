@@ -1,15 +1,17 @@
 hashlib
 ============================================================
 
-暗号学的ハッシュ関数を計算するライブラリ。
+Outputs message digest using cryptographic hash functions.
 
 
-ビルドコマンド
+to test/run/build
 ------------------------------------------------------------
 
-    cargo check
     cargo test
+
     cargo run --bin md5sum -- <FILE>
+
+    cargo build --release
 
 
 modules
